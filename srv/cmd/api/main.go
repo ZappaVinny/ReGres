@@ -15,10 +15,13 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "ReGres API is running")
+		log.Println("Index page accessed")
 	})
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "ok")
+		log.Println("Health check requested")
+
 	})
 
 	log.Println("ReGres API running on port " + port)

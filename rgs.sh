@@ -51,6 +51,13 @@ service_exec() {
   compose exec "$service" "$@"
 }
 
+run_migrations_reset() {
+  compose run --rm srv sh -c '
+    migrate -path db/migrations -database "$DATABASE_URL" down -all || true
+    migrate -path db/migrations -database "$DATABASE_URL" up
+  '
+}
+
 case "$cmd" in
   ""|help|-h|--help)
     show_help
@@ -58,7 +65,24 @@ case "$cmd" in
 
   init)
     compose build
-    compose create
+
+    echo "Initializing database+++"
+    compose up -d db
+
+    echo "Running migrations+++"
+    compose run --rm srv sh -c '
+        migrate -path db/migrations -database "$DATABASE_URL" down -all || true
+        migrate -path db/migrations -database "$DATABASE_URL" up
+    '
+
+    echo "Constructing Models+++"
+    compose run --rm srv sqlc generate
+    
+    compose create web srv
+    echo ""
+    echo "ReGres initialized."
+    echo "Run the stack with:"
+    echo "  ./rgs run"
     ;;
 
   run)
@@ -92,6 +116,46 @@ case "$cmd" in
   logs)
     compose logs -f "$@"
     ;;
+
+    migrate)
+    subcmd="$1"
+    shift || true
+
+    case "$subcmd" in
+      up)
+        echo "Running migrations up+++"
+        compose up -d db
+        compose run --rm srv sh -c '
+          migrate -path db/migrations -database "$DATABASE_URL" up
+        '
+        ;;
+
+      down)
+        echo "Running migrations down+++"
+        compose up -d db
+        compose run --rm srv sh -c '
+          migrate -path db/migrations -database "$DATABASE_URL" down -all
+        '
+        ;;
+
+      reset)
+        echo "Resetting database+++"
+        run_migrations_reset
+
+        echo "Constructing Models+++"
+        compose run --rm srv sqlc generate
+        ;;
+
+      *)
+        echo "Usage:"
+        echo "  rgs migrate up"
+        echo "  rgs migrate down"
+        echo "  rgs migrate reset"
+        exit 1
+        ;;
+    esac
+    ;;
+
 
   web|srv|db)
     service_exec "$cmd" "$@"

@@ -21,6 +21,7 @@ services:
       context: ./srv
       dockerfile: Dockerfile
     container_name: regres_srv
+    user: "1000:1000"
     ports:
       - "8080:8080"
     volumes:
@@ -32,6 +33,9 @@ services:
     environment:
       APP_ENV: local
       PORT: 8080
+      GOPATH: /tmp/go
+      GOCACHE: /tmp/go-cache
+      GOMODCACHE: /tmp/go/pkg/mod
       DATABASE_URL: postgres://postgres:postgres@db:5432/app?sslmode=disable
 
   db:

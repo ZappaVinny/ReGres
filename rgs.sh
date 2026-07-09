@@ -13,29 +13,29 @@ show_help() {
   echo "ReGres CLI"
   echo ""
   echo "Usage:"
-  echo "  rgs <command> [args]"
+  echo "  ./rgs.sh <command> [args]"
   echo ""
   echo "Core commands:"
-  echo "  rgs init              Build images and create containers"
-  echo "  rgs run               Run the web, srv, and db stack"
-  echo "  rgs up                Run the stack in the background"
-  echo "  rgs down              Stop and remove containers"
-  echo "  rgs stop              Stop containers without removing them"
-  echo "  rgs restart [service] Restart all containers or one service"
-  echo "  rgs build             Build images"
-  echo "  rgs logs [service]    Show logs"
+  echo "  ./rgs.sh init              Build images and create containers"
+  echo "  ./rgs.sh run               Run the web, srv, and db stack"
+  echo "  ./rgs.sh up                Run the stack in the background"
+  echo "  ./rgs.sh down              Stop and remove containers"
+  echo "  ./rgs.sh stop              Stop containers without removing them"
+  echo "  ./rgs.sh restart [service] Restart all containers or one service"
+  echo "  ./rgs.sh build             Build images"
+  echo "  ./rgs.sh logs [service]    Show logs"
   echo ""
   echo "Service commands:"
-  echo "  rgs web <command>     Run a command in the web container"
-  echo "  rgs srv <command>     Run a command in the srv container"
-  echo "  rgs db <command>      Run a command in the db container"
+  echo "  ./rgs.sh web <command>     Run a command in the web container"
+  echo "  ./rgs.sh srv <command>     Run a command in the srv container"
+  echo "  ./rgs.sh db <command>      Run a command in the db container"
   echo ""
   echo "Examples:"
-  echo "  rgs web npm install"
-  echo "  rgs web npm run build"
-  echo "  rgs srv go test ./..."
-  echo "  rgs srv go mod tidy"
-  echo "  rgs db psql -U postgres -d regres"
+  echo "  ./rgs.sh web npm install"
+  echo "  ./rgs.sh web npm run build"
+  echo "  ./rgs.sh srv go test ./..."
+  echo "  ./rgs.sh srv go mod tidy"
+  echo "  ./rgs.sh db psql -U postgres -d regres"
 }
 
 service_exec() {
@@ -44,7 +44,7 @@ service_exec() {
 
   if [ -z "$1" ]; then
     echo "No command provided for service '$service'."
-    echo "Example: rgs $service sh"
+    echo "Example: ./rgs.sh $service sh"
     exit 1
   fi
 
@@ -82,7 +82,7 @@ case "$cmd" in
     echo ""
     echo "ReGres initialized."
     echo "Run the stack with:"
-    echo "  ./rgs run"
+    echo "  ./rgs.sh run"
     ;;
 
   run)
@@ -148,9 +148,9 @@ case "$cmd" in
 
       *)
         echo "Usage:"
-        echo "  rgs migrate up"
-        echo "  rgs migrate down"
-        echo "  rgs migrate reset"
+        echo "  ./rgs.sh migrate up"
+        echo "  ./rgs.sh migrate down"
+        echo "  ./rgs.sh migrate reset"
         exit 1
         ;;
     esac

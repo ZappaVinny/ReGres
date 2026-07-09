@@ -30,6 +30,8 @@ services:
     command: go run ./cmd/api
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       APP_ENV: local
       PORT: 8080

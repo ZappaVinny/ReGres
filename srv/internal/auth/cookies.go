@@ -3,36 +3,36 @@ package auth
 import (
 	"net/http"
 	"time"
-)
 
-const SessionCookieName = "regres_session"
+	"regres/srv/internal/config"
+)
 
 func SetSessionCookie(w http.ResponseWriter, token string, expiresAt time.Time) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     SessionCookieName,
+		Name:     config.SessionCookieName(),
 		Value:    token,
 		Path:     "/",
 		Expires:  expiresAt,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   false,
+		Secure:   config.HTTPSEnabled(),
 	})
 }
 
 func ClearSessionCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     SessionCookieName,
+		Name:     config.SessionCookieName(),
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   false,
+		Secure:   config.HTTPSEnabled(),
 	})
 }
 
 func ReadSessionCookie(r *http.Request) (string, bool) {
-	cookie, err := r.Cookie(SessionCookieName)
+	cookie, err := r.Cookie(config.SessionCookieName())
 	if err != nil {
 		return "", false
 	}

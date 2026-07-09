@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"regres/srv/internal/auth"
+	"regres/srv/internal/config"
 	"regres/srv/internal/database/queries"
 	"regres/srv/internal/middleware"
 
@@ -171,7 +172,7 @@ func (h *AuthHandler) createSession(ctx context.Context, r *http.Request, userID
 	}
 
 	tokenHash := auth.HashSessionToken(sessionToken)
-	expiresAt := time.Now().Add(7 * 24 * time.Hour)
+	expiresAt := time.Now().Add(time.Duration(config.SessionDurationHours()) * time.Hour)
 
 	_, err = h.Queries.CreateSession(ctx, queries.CreateSessionParams{
 		UserID:           userID,

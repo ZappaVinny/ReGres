@@ -1,0 +1,56 @@
+services:
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: regres_web
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - srv
+    environment:
+      VITE_API_URL: http://localhost:8080
+
+  srv:
+    build:
+      context: ./srv
+      dockerfile: Dockerfile
+    container_name: regres_srv
+    user: "1000:1000"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./srv:/app
+    working_dir: /app
+    command: go run ./cmd/api
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      APP_ENV: local
+      PORT: 8080
+      GOPATH: /tmp/go
+      GOCACHE: /tmp/go-cache
+      GOMODCACHE: /tmp/go/pkg/mod
+      DATABASE_URL: postgres://postgres:postgres@db:5432/app?sslmode=disable
+
+  db:
+    image: postgres:16
+    container_name: regres_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+    volumes:
+      - regres_pgdata:/var/lib/postgresql/data
+
+volumes:
+  regres_pgdata:

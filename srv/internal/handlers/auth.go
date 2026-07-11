@@ -11,6 +11,7 @@ import (
 	"regres/srv/internal/auth"
 	"regres/srv/internal/config"
 	"regres/srv/internal/database/queries"
+	"regres/srv/internal/helpers"
 	"regres/srv/internal/middleware"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -51,7 +52,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var body RegisterRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		WriteError(w, http.StatusBadRequest, "invalid request body")
+		helpers.WriteError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -59,18 +60,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	body.Username = strings.TrimSpace(body.Username)
 
 	if body.Email == "" || body.Username == "" || body.Password == "" {
-		WriteError(w, http.StatusBadRequest, "email, username, and password are required")
+		helpers.WriteError(w, http.StatusBadRequest, "email, username, and password are required")
 		return
 	}
 
 	if len(body.Password) < 8 {
-		WriteError(w, http.StatusBadRequest, "password must be at least 8 characters")
+		helpers.WriteError(w, http.StatusBadRequest, "password must be at least 8 characters")
 		return
 	}
 
 	passwordHash, err := auth.HashPassword(body.Password)
 	if err != nil {
-		WriteError(w, http.StatusInternalServerError, "could not hash password")
+		helpers.WriteError(w, http.StatusInternalServerError, "could not hash password")
 		return
 	}
 
@@ -80,19 +81,19 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		PasswordHash: passwordHash,
 	})
 	if err != nil {
-		WriteError(w, http.StatusBadRequest, "could not create user")
+		helpers.WriteError(w, http.StatusBadRequest, "could not create user")
 		return
 	}
 
 	sessionToken, expiresAt, err := h.createSession(r.Context(), r, user.ID)
 	if err != nil {
-		WriteError(w, http.StatusInternalServerError, "could not create session")
+		helpers.WriteError(w, http.StatusInternalServerError, "could not create session")
 		return
 	}
 
 	auth.SetSessionCookie(w, sessionToken, expiresAt)
 
-	WriteJSON(w, http.StatusCreated, AuthResponse{
+	helpers.WriteJSON(w, http.StatusCreated, AuthResponse{
 		User: UserResponse{
 			ID:       user.ID,
 			Email:    user.Email,
@@ -105,7 +106,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var body LoginRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		WriteError(w, http.StatusBadRequest, "invalid request body")
+		helpers.WriteError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -113,24 +114,24 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Queries.GetUserByEmail(r.Context(), body.Email)
 	if err != nil {
-		WriteError(w, http.StatusUnauthorized, "invalid email or password")
+		helpers.WriteError(w, http.StatusUnauthorized, "invalid email or password")
 		return
 	}
 
 	if !auth.CheckPassword(body.Password, user.PasswordHash) {
-		WriteError(w, http.StatusUnauthorized, "invalid email or password")
+		helpers.WriteError(w, http.StatusUnauthorized, "invalid email or password")
 		return
 	}
 
 	sessionToken, expiresAt, err := h.createSession(r.Context(), r, user.ID)
 	if err != nil {
-		WriteError(w, http.StatusInternalServerError, "could not create session")
+		helpers.WriteError(w, http.StatusInternalServerError, "could not create session")
 		return
 	}
 
 	auth.SetSessionCookie(w, sessionToken, expiresAt)
 
-	WriteJSON(w, http.StatusOK, AuthResponse{
+	helpers.WriteJSON(w, http.StatusOK, AuthResponse{
 		User: UserResponse{
 			ID:       user.ID,
 			Email:    user.Email,
@@ -148,7 +149,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	auth.ClearSessionCookie(w)
 
-	WriteJSON(w, http.StatusOK, map[string]string{
+	helpers.WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "logged out",
 	})
 }
@@ -156,11 +157,11 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	user, ok := middleware.CurrentUserFromContext(r.Context())
 	if !ok {
-		WriteError(w, http.StatusUnauthorized, "not authenticated")
+		helpers.WriteError(w, http.StatusUnauthorized, "not authenticated")
 		return
 	}
 
-	WriteJSON(w, http.StatusOK, map[string]any{
+	helpers.WriteJSON(w, http.StatusOK, map[string]any{
 		"user": user,
 	})
 }

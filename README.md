@@ -39,7 +39,6 @@ Required Tooling
 
 - Docker
 - Golang (with path)
-- npm
 - Makefile (for building CLI)
 
 **Web Development Setup**

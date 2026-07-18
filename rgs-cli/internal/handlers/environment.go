@@ -5,13 +5,13 @@ import (
 	h "regres/cli/internal/helpers"
 )
 
-func RunInit() {
+func EnvInit() {
 	h.RunCompose("build")
 	fmt.Println("Initializing database+++")
 	h.RunCompose("up", "-d", "db")
 
 	fmt.Println("Running migrations+++")
-	RunMigrationsReset()
+	h.RunMigrationsReset()
 
 	fmt.Println("Constructing Models+++")
 	h.RunCompose("run", "--rm", "srv", "sqlc", "generate")
@@ -19,22 +19,21 @@ func RunInit() {
 	fmt.Println("Constructing Models+++")
 	h.RunCompose("create", "web", "srv")
 
-	fmt.Println(h.InitText)
+	fmt.Println(initText)
 
 }
 
-func RunDown() {
+func EnvDown() {
 	h.RunCompose("down")
+	fmt.Println("Environment down+++")
 }
 
-func RunDev() {
+func EnvRun() {
 	h.RunCompose("up", "web", "srv")
 }
 
-func RunMigrationsReset() {
-	script := `
-		migrate -path db/migrations -database "$DATABASE_URL" down -all || true
-		migrate -path db/migrations -database "$DATABASE_URL" up
-	`
-	h.RunCompose("run", "--rm", "srv", "sh", "-c", script)
-}
+const initText = `
+ReGres initialized.
+Run the stack with:
+
+rgs run`

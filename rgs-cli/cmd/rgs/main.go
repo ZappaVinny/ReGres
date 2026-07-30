@@ -59,6 +59,42 @@ func main() {
 			c.WebCommand(os.Args[2:]...)
 		}
 
+	case "db":
+		if len(os.Args) < 3 {
+			fmt.Println(c.DBHelpText)
+			os.Exit(1)
+		}
+		switch os.Args[2] {
+		case "help":
+			fmt.Println(c.DBHelpText)
+		case "sh":
+			c.DBShell()
+		case "up":
+			c.DBUp(false)
+		case "down":
+			c.DBDown(false)
+		case "migrate":
+			if len(os.Args) < 4 {
+				fmt.Println(c.DBMigrateHelpText)
+				os.Exit(1)
+			}
+			switch os.Args[3] {
+			case "help":
+				fmt.Println(c.DBMigrateHelpText)
+			case "up":
+				c.DBMigrateUp()
+			case "down":
+				c.DBMigrateDown()
+			case "reset":
+				c.DBMigrateReset()
+			default:
+				fmt.Println(c.DBMigrateHelpText)
+				os.Exit(1)
+			}
+		default:
+			c.DBCommand(os.Args[2:]...)
+		}
+
 	default:
 		fmt.Printf("unknown command: %s\n", os.Args[1])
 		os.Exit(1)
@@ -74,6 +110,10 @@ Usage:
 Available Commands:
   init        Initialize a ReGres development environment
   run         Run a ReGres development environment
+  down        Stop and remove the ReGres environment
+  srv         Run a command in the srv container
+  web         Run a command in the web container
+  db          Run a command in the db container, incl. migrations
   help        Show help for a command
 
 Use "rgs help <command>" for more information about a command.`

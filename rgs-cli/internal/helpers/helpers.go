@@ -25,6 +25,14 @@ func RunComposeQuiet(quiet bool, args ...string) {
 	}
 }
 
+func RunMigrationsUp() {
+	RunCompose("run", "--rm", "srv", "sh", "-c", `migrate -path db/migrations -database "$DATABASE_URL" up`)
+}
+
+func RunMigrationsDown() {
+	RunCompose("run", "--rm", "srv", "sh", "-c", `migrate -path db/migrations -database "$DATABASE_URL" down -all`)
+}
+
 func RunMigrationsReset() {
 	script := `
 		migrate -path db/migrations -database "$DATABASE_URL" down -all || true

@@ -5,6 +5,7 @@ import (
 
 	"regres/srv/internal/database/queries"
 	"regres/srv/internal/handlers"
+	"regres/srv/internal/helpers"
 	"regres/srv/internal/middleware"
 )
 
@@ -33,7 +34,7 @@ func Register(mux *http.ServeMux, q *queries.Queries) {
 			return
 		}
 
-		handlers.WriteJSON(w, http.StatusOK, map[string]any{
+		helpers.WriteJSON(w, http.StatusOK, map[string]any{
 			"message": "you are authenticated",
 			"user":    user,
 		})

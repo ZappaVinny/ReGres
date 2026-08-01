@@ -24,6 +24,7 @@ For local development everything runs in a single Docker Compose setup, frontend
   - React
   - Vite
   - Tailwind
+- make
 
 ## Features
 
@@ -34,11 +35,29 @@ For local development everything runs in a single Docker Compose setup, frontend
 
 ## Local Setup
 
+Required Tooling
+
+- Docker
+- Golang (with path)
+- Makefile (for building CLI)
+
+**Web Development Setup**
+
 1. Clone repo
 2. Copy .env.example to .env
-3. Run `./rgs.sh init` to build containers and run migrations
-4. Run `./rgs.sh run` to start local frontend and backend server
-5. Develop your application
+3. Run `make install` in root folder
+4. Run `rgs init` to build containers and run migrations
+5. Run `rgs run` to start local frontend and backend server
+6. Develop your application
+
+**rgs CLI Development Setup**
+
+1. Clone repo
+2. Copy .env.example to .env (so you don't run into compile errors)
+3. Run `cd rgs-cli`
+4. Develop rgs-cli
+5. Run `go run ./cmd/rgs {args}` to test development
+6. Run `make install` in root folder to test compiled binary
 
 ## Roadmap
 
